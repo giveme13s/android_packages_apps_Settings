@@ -489,4 +489,8 @@
     <string name="title_pref_menu_display">Menu visibility</string>
     <string name="summary_pref_menu_display">How and when do you want the menu buttons to appear?</string>
 
+    <!-- Linked / unlinked notification volume -->
+    <string name="link_volume_option_title">Link ring and notification volumes</string>
+    <string name="notification_volume_option_title">Notification volume</string>
+		<string name="ring_notification_volume_option_tile">Ring and notification volume</string>
 </resources>
