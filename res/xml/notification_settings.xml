@@ -42,18 +42,34 @@
                 android:icon="@drawable/ring_ring"
                 android:title="@string/ring_volume_option_title" />
 
+        <!-- Link Volume Notification -->
+        <SwitchPreference
+                android:key="volume_link_notification"
+                android:title="@string/link_volume_option_title"
+                android:persistent = "false"
+                android:defaultValue = "true" />
+
         <!-- Notification volume -->
         <com.android.settings.notification.VolumeSeekBarPreference
                 android:key="notification_volume"
                 android:icon="@*android:drawable/ic_audio_ring_notif"
                 android:title="@string/notification_volume_option_title" />
 
-        <!-- Link Volume Notification -->
-        <CheckBoxPreference
-                android:key="volume_link_notification"
-                android:title="@string/link_volume_option_title"
-                android:persistent = "false"
-                android:defaultValue = "true" />
+        <PreferenceScreen
+                android:key="volume_steps"
+                android:fragment="com.android.settings.rr.VolumeSteps"
+                android:title="@string/volume_steps_title" />
+                
+        <!-- Increasing ring -->
+        <com.dirtyunicorns.dutweaks.preference.SystemSettingSwitchPreference
+                android:key="increasing_ring"
+                android:title="@string/increasing_ring_volume_option_title" />
+
+        <!-- Increasing ring volume -->
+        <com.android.settings.notification.IncreasingRingVolumePreference
+                android:key="increasing_ring_volume"
+                android:icon="@drawable/ring_notif_increasing"
+                android:dependency="increasing_ring" />
 
         <!-- Also vibrate for calls -->
         <SwitchPreference
@@ -90,13 +106,6 @@
                 android:title="@string/other_sound_settings"
                 android:persistent="false"
                 android:fragment="com.android.settings.notification.OtherSoundSettings" />
-
-        <PreferenceScreen
-                android:key="advanced_sound_settings"
-                android:title="@string/advanced_sound_title"
-                android:persistent="false"
-                android:fragment="com.android.settings.du.SoundSettings" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
