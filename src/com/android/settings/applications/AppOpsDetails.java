@@ -90,6 +90,11 @@ public class AppOpsDetails extends Fragment {
         return AppOpsManager.MODE_IGNORED;
     }
 
+    private boolean isPlatformSigned() {
+        final int match = mPm.checkSignatures("android", mPackageInfo.packageName);
+        return match >= PackageManager.SIGNATURE_MATCH;
+    }
+
     // Utility method to set application label and icon.
     private void setAppLabelAndIcon(PackageInfo pkgInfo) {
         final View appSnippet = mRootView.findViewById(R.id.app_snippet);
@@ -145,7 +150,15 @@ public class AppOpsDetails extends Fragment {
 
         mOperationsSection.removeAllViews();
         String lastPermGroup = "";
+        boolean isPlatformSigned = isPlatformSigned();
         for (AppOpsState.OpsTemplate tpl : AppOpsState.ALL_TEMPLATES) {
+            /* If we are platform signed, only show the root switch, this
+             * one is safe to toggle while other permission-based ones could
+             * certainly cause system-wide problems
+             */
+            if (isPlatformSigned && tpl != AppOpsState.SU_TEMPLATE) {
+                 continue;
+            }
             List<AppOpsState.AppOpEntry> entries = mState.buildState(tpl,
                     mPackageInfo.applicationInfo.uid, mPackageInfo.packageName);
             for (final AppOpsState.AppOpEntry entry : entries) {
@@ -170,6 +183,8 @@ public class AppOpsDetails extends Fragment {
                 }
                 ((TextView)view.findViewById(R.id.op_name)).setText(
                         entry.getSwitchText(mState));
+                ((TextView)view.findViewById(R.id.op_counts)).setText(
+                        entry.getCountsText(res));
                 ((TextView)view.findViewById(R.id.op_time)).setText(
                         entry.getTimeText(res, true));
 
