@@ -69,9 +69,11 @@ import com.android.settings.accessibility.CaptionPropertiesFragment;
 import com.android.settings.accounts.AccountSettings;
 import com.android.settings.accounts.AccountSyncSettings;
 import com.dirtyunicorns.dutweaks.DirtyTweaks;
+import com.android.settings.applications.ExpandedDesktopPreferenceFragment;
 import com.android.settings.applications.InstalledAppDetails;
 import com.android.settings.applications.ManageApplications;
 import com.android.settings.applications.ProcessStatsUi;
+import com.android.settings.blacklist.BlacklistSettings;
 import com.android.settings.bluetooth.BluetoothSettings;
 import com.android.settings.dashboard.DashboardCategory;
 import com.android.settings.dashboard.DashboardSummary;
@@ -80,6 +82,7 @@ import com.android.settings.dashboard.NoHomeDialogFragment;
 import com.android.settings.dashboard.SearchResultsSummary;
 import com.android.settings.deviceinfo.Memory;
 import com.android.settings.deviceinfo.UsbSettings;
+import com.android.settings.du.AmbientSettings;
 import com.android.settings.fuelgauge.BatterySaverSettings;
 import com.android.settings.fuelgauge.PowerUsageSummary;
 import com.android.settings.notification.NotificationAppList;
@@ -113,11 +116,12 @@ import com.android.settings.wifi.AdvancedWifiSettings;
 import com.android.settings.wifi.SavedAccessPointsWifiSettings;
 import com.android.settings.wifi.WifiSettings;
 import com.android.settings.wifi.p2p.WifiP2pSettings;
-import com.dirtyunicorns.dutweaks.fragments.HeadsUpSettings;
-import com.dirtyunicorns.dutweaks.fragments.NavBar;
 import com.dirtyunicorns.dutweaks.fragments.AppCircleBar;
-import com.android.settings.du.AmbientSettings;
 import com.dirtyunicorns.dutweaks.fragments.ButtonBrightnessSettings;
+import com.dirtyunicorns.dutweaks.fragments.HeadsUpSettings;
+import com.android.settings.du.DisplayRotation;
+import com.dirtyunicorns.dutweaks.fragments.NavbarSettings;
+import com.dirtyunicorns.dutweaks.fragments.PieControl;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -310,12 +314,16 @@ public class SettingsActivity extends Activity
             OtherSoundSettings.class.getName(),
             QuickLaunchSettings.class.getName(),
             ApnSettings.class.getName(),
+            BlacklistSettings.class.getName(),
             DirtyTweaks.class.getName(),
             HeadsUpSettings.class.getName(),
-            NavBar.class.getName(),
             AppCircleBar.class.getName(),
             AmbientSettings.class.getName(),
-            ButtonBrightnessSettings.class.getName()
+            ButtonBrightnessSettings.class.getName(),
+            NavbarSettings.class.getName(),
+            PieControl.class.getName(),
+            ExpandedDesktopPreferenceFragment.class.getName(),
+            DisplayRotation.class.getName()
     };
 
 

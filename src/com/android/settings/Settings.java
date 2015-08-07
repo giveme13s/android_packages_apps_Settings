@@ -102,10 +102,16 @@ public class Settings extends SettingsActivity {
 
     public static class TopLevelSettings extends SettingsActivity { /* empty */ }
     public static class ApnSettingsActivity extends SettingsActivity { /* empty */ }
+    public static class BlacklistSettingsActivity extends SettingsActivity { /* empty */ }
     public static class DuSettingsActivity extends SettingsActivity { /* empty */ }
     public static class HeadsUpSettingsActivity extends SettingsActivity { /* empty */ }
-    public static class NavBarActivity extends SettingsActivity { /* empty */ }
     public static class AppCircleBarActivity extends SettingsActivity { /* empty */ }
     public static class AmbientDisplaySettingsActivity extends SettingsActivity { /* empty */ }
     public static class ButtonBrightnessSettings extends SettingsActivity { /* empty */ }
+    public static class NavbarSettingsActivity extends SettingsActivity { /* empty */ }
+    public static class PieControlActivity extends SettingsActivity { /* empty */ }
+    public static class QSTilesSettingsActivity extends SettingsActivity { /* empty */ }
+    public static class ExpandedDesktopSettingsActivity extends SettingsActivity { /* empty */ }
+    public static class DisplayRotationActivity extends SettingsActivity { /* empty */ }
+    public static class DirtyTweaksActivity extends SettingsActivity { /* empty */ }
 }

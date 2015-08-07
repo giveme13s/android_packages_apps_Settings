@@ -1801,6 +1801,22 @@
             android:theme="@style/CryptKeeperBlankTheme"
         />
 
+        <!-- Display rotation -->
+        <activity android:name="Settings$DisplayRotationActivity"
+                android:label="@string/display_rotation_title"
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.settings.DISPLAY_ROTATION_SETTINGS" />
+                <action android:name="com.android.settings.DISPLAY_ROTATION_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.du.DisplayRotation" />
+            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
+                android:resource="@id/display_settings" />
+        </activity>
+
         <!-- AppCircleBar -->
         <activity android:name="Settings$AppCircleBarActivity"
                 android:uiOptions="splitActionBarWhenNarrow"
@@ -1841,6 +1857,32 @@
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
                 android:resource="@id/display_settings" />
         </activity>
+
+        <activity android:name="Settings$BlacklistSettingsActivity"
+                android:uiOptions="splitActionBarWhenNarrow"
+                android:label="@string/blacklist_title"
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.blacklist.BlacklistSettings" />
+            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
+                android:resource="@id/security_settings" />
+        </activity>
+
+        <activity-alias android:name=".blacklist.BlacklistSettings"
+                android:taskAffinity="com.android.settings"
+                android:label="@string/blacklist_title"
+                android:targetActivity="Settings$BlacklistSettingsActivity"
+                android:configChanges="orientation|keyboardHidden|screenSize"
+                android:exported="true">
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                       android:value="com.android.settings.blacklist.BlacklistSettings" />
+            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
+                       android:resource="@id/security_settings" />
+        </activity-alias>
 
         <!-- Navigation options -->
         <activity android:name="Settings$NavbarSettingsActivity"
@@ -2278,8 +2320,8 @@
         <activity android:name="us.zamzow.mazwoz.dirtyunicornschangelog.ChangeList"/>
 
         <activity android:name="Settings$DirtyTweaksActivity"
-            android:label="@string/custom_title"
-            android:taskAffinity="">
+                android:label="@string/custom_title"
+                android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

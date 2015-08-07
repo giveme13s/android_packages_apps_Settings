@@ -29,6 +29,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.content.pm.PackageManager;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -41,6 +42,7 @@ import android.util.Log;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Indexable;
 import com.android.settings.search.Indexable.SearchIndexProvider;
+import com.android.internal.telephony.util.BlacklistUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,10 @@ import java.util.List;
  */
 public class PrivacySettings extends SettingsPreferenceFragment implements
         DialogInterface.OnClickListener, Indexable {
+
+    private static final String KEY_BLACKLIST = "blacklist";
+
+    private PreferenceScreen mBlacklist;
 
     // Vendor specific
     private static final String GSETTINGS_PROVIDER = "com.google.settings";
@@ -83,6 +89,18 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
         mEnabled = Process.myUserHandle().isOwner();
         if (!mEnabled) {
             return;
+        }
+
+        mBlacklist = (PreferenceScreen) findPreference(KEY_BLACKLIST);
+
+        // Add package manager to check if features are available
+        PackageManager pm = getPackageManager();
+
+        // Determine options based on device telephony support
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+            // No telephony, remove dependent options
+        PreferenceScreen root = getPreferenceScreen();
+            root.removePreference(mBlacklist);
         }
 
         addPreferencesFromResource(R.xml.privacy_settings);
@@ -122,12 +140,14 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        updateBlacklistSummary();
 
         // Refresh UI
         if (mEnabled) {
             updateToggles();
         }
     }
+
 
     @Override
     public void onStop() {
@@ -207,6 +227,14 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
         mConfigure.setEnabled(configureEnabled);
         mConfigure.setIntent(configIntent);
         setConfigureSummary(configSummary);
+    }
+
+    private void updateBlacklistSummary() {
+        if (BlacklistUtils.isBlacklistEnabled(getActivity())) {
+            mBlacklist.setSummary(R.string.blacklist_summary);
+        } else {
+            mBlacklist.setSummary(R.string.blacklist_summary_disabled);
+        }
     }
 
     private void setConfigureSummary(String summary) {
