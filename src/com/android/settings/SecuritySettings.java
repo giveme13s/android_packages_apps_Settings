@@ -53,9 +53,8 @@ import android.util.Log;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.settings.TrustAgentUtils.TrustAgentComponentInfo;
 import com.android.settings.search.BaseSearchIndexProvider;
-import com.android.settings.search.Indexable;
 import com.android.settings.search.Index;
-
+import com.android.settings.search.Indexable;
 import com.android.settings.search.SearchIndexableRaw;
 
 import java.util.ArrayList;
@@ -84,12 +83,12 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String KEY_SECURITY_CATEGORY = "security_category";
     private static final String KEY_DEVICE_ADMIN_CATEGORY = "device_admin_category";
     private static final String KEY_VISIBLE_ERROR_PATTERN = "visible_error_pattern";
+    private static final String KEY_DIRECTLY_SHOW = "directlyshow";
     private static final String KEY_VISIBLE_DOTS = "visibledots";
     private static final String KEY_LOCK_AFTER_TIMEOUT = "lock_after_timeout";
     private static final String KEY_OWNER_INFO_SETTINGS = "owner_info_settings";
     private static final String KEY_ADVANCED_SECURITY = "advanced_security";
     private static final String KEY_MANAGE_TRUST_AGENTS = "manage_trust_agents";
-    private static final String KEY_SHOW_VISUALIZER = "lockscreen_visualizer";
     private static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "quick_unlock_control";
     private static final String LOCK_NUMPAD_RANDOM = "lock_numpad_random";
 
@@ -105,7 +104,6 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String KEY_CREDENTIAL_STORAGE_TYPE = "credential_storage_type";
     private static final String KEY_RESET_CREDENTIALS = "credentials_reset";
     private static final String KEY_CREDENTIALS_INSTALL = "credentials_install";
-    private static final String KEY_APP_OPS_SUMMARY = "app_ops_summary";
     private static final String KEY_TOGGLE_INSTALL_APPLICATIONS = "toggle_install_applications";
     private static final String KEY_POWER_INSTANTLY_LOCKS = "power_button_instantly_locks";
     private static final String KEY_CREDENTIALS_MANAGER = "credentials_management";
@@ -117,12 +115,12 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
             KEY_LOCK_ENABLED, KEY_VISIBLE_PATTERN, KEY_VISIBLE_GESTURE, KEY_VISIBLE_ERROR_PATTERN, KEY_VISIBLE_DOTS,
             KEY_BIOMETRIC_WEAK_LIVELINESS, KEY_POWER_INSTANTLY_LOCKS, KEY_SHOW_PASSWORD,
-            KEY_TOGGLE_INSTALL_APPLICATIONS };
+            KEY_POWER_INSTANTLY_LOCKS, KEY_SHOW_PASSWORD, 
+            KEY_DIRECTLY_SHOW, KEY_TOGGLE_INSTALL_APPLICATIONS, KEY_VISIBLE_GESTURE };
 
     // Only allow one trust agent on the platform.
     private static final boolean ONLY_ONE_TRUST_AGENT = true;
 
-    private PackageManager mPM;
     private DevicePolicyManager mDPM;
     private SubscriptionManager mSubscriptionManager;
 
@@ -134,6 +132,7 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private SwitchPreference mVisiblePattern;
     private SwitchPreference mVisibleGesture;
     private SwitchPreference mVisibleErrorPattern;
+    private SwitchPreference mDirectlyShow;
     private SwitchPreference mVisibleDots;
     private SwitchPreference mShowPassword;
 
@@ -221,9 +220,6 @@ public class SecuritySettings extends SettingsPreferenceFragment
         addPreferencesFromResource(R.xml.security_settings);
         root = getPreferenceScreen();
 
-        // Add package manager to check if features are available
-        PackageManager pm = getPackageManager();
-
         // Add options for lock/unlock screen
         final int resid = getResIdForLockUnlockScreen(getActivity(), mLockPatternUtils);
         addPreferencesFromResource(resid);
@@ -300,6 +296,9 @@ public class SecuritySettings extends SettingsPreferenceFragment
 
         // visible error pattern
         mVisibleErrorPattern = (SwitchPreference) root.findPreference(KEY_VISIBLE_ERROR_PATTERN);
+
+        // directly show
+        mDirectlyShow = (SwitchPreference) root.findPreference(KEY_DIRECTLY_SHOW);
 
         // visible dots
         mVisibleDots = (SwitchPreference) root.findPreference(KEY_VISIBLE_DOTS);
@@ -408,7 +407,8 @@ public class SecuritySettings extends SettingsPreferenceFragment
             Preference credentialStorageType = root.findPreference(KEY_CREDENTIAL_STORAGE_TYPE);
 
             final int storageSummaryRes =
-                mKeyStore.isHardwareBacked() ? R.string.credential_storage_type_hardware
+                mKeyStore != null && mKeyStore.isHardwareBacked()
+                        ? R.string.credential_storage_type_hardware
                         : R.string.credential_storage_type_software;
             credentialStorageType.setSummary(storageSummaryRes);
         } else {
@@ -656,6 +656,15 @@ public class SecuritySettings extends SettingsPreferenceFragment
         if (mVisiblePattern != null) {
             mVisiblePattern.setChecked(lockPatternUtils.isVisiblePatternEnabled());
         }
+        if (mVisibleErrorPattern != null) {
+            mVisibleErrorPattern.setChecked(lockPatternUtils.isShowErrorPath());
+        }
+        if (mDirectlyShow != null) {
+            mDirectlyShow.setChecked(lockPatternUtils.shouldPassToSecurityView());
+        }
+        if (mVisibleDots != null) {
+            mVisibleDots.setChecked(lockPatternUtils.isVisibleDotsEnabled());
+        }
         if (mPowerButtonInstantlyLocks != null) {
             mPowerButtonInstantlyLocks.setChecked(lockPatternUtils.getPowerButtonInstantlyLocks());
         }
@@ -728,10 +737,6 @@ public class SecuritySettings extends SettingsPreferenceFragment
                 mTrustAgentClickIntent = null;
             }
             return;
-        } else if (requestCode == SET_OR_CHANGE_LOCK_METHOD_REQUEST) {
-            Index.getInstance(
-                    getActivity().getApplicationContext()).updateFromClassNameResource(
-                    SecuritySettings.class.getName(), true, true);
         }
         createPreferenceHierarchy();
     }
@@ -754,12 +759,14 @@ public class SecuritySettings extends SettingsPreferenceFragment
             lockPatternUtils.setLockPatternEnabled((Boolean) value);
         } else if (KEY_VISIBLE_PATTERN.equals(key)) {
             lockPatternUtils.setVisiblePatternEnabled((Boolean) value);
-        //} else if (KEY_VISIBLE_ERROR_PATTERN.equals(key)) {
-            //lockPatternUtils.setShowErrorPath((Boolean) value);
+        } else if (KEY_DIRECTLY_SHOW.equals(key)) {
+            lockPatternUtils.setPassToSecurityView((Boolean) value);
+        } else if (KEY_VISIBLE_ERROR_PATTERN.equals(key)) {
+            lockPatternUtils.setShowErrorPath((Boolean) value);
         } else if (KEY_VISIBLE_GESTURE.equals(key)) {
             lockPatternUtils.setVisibleGestureEnabled((Boolean) value);
-        //} else if (KEY_VISIBLE_DOTS.equals(key)) {
-            //lockPatternUtils.setVisibleDotsEnabled((Boolean) value);
+        } else if (KEY_VISIBLE_DOTS.equals(key)) {
+            lockPatternUtils.setVisibleDotsEnabled((Boolean) value);
         } else  if (KEY_BIOMETRIC_WEAK_LIVELINESS.equals(key)) {
             if ((Boolean) value) {
                 lockPatternUtils.setBiometricWeakLivelinessEnabled(true);
