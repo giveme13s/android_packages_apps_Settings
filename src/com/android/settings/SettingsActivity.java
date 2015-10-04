@@ -73,7 +73,6 @@ import com.android.settings.applications.ExpandedDesktopPreferenceFragment;
 import com.android.settings.applications.InstalledAppDetails;
 import com.android.settings.applications.ManageApplications;
 import com.android.settings.applications.ProcessStatsUi;
-import com.android.settings.blacklist.BlacklistSettings;
 import com.android.settings.bluetooth.BluetoothSettings;
 import com.android.settings.dashboard.DashboardCategory;
 import com.android.settings.dashboard.DashboardSummary;
@@ -314,7 +313,6 @@ public class SettingsActivity extends Activity
             OtherSoundSettings.class.getName(),
             QuickLaunchSettings.class.getName(),
             ApnSettings.class.getName(),
-            BlacklistSettings.class.getName(),
             DirtyTweaks.class.getName(),
             HeadsUpSettings.class.getName(),
             AppCircleBar.class.getName(),
@@ -1243,6 +1241,15 @@ public class SettingsActivity extends Activity
                     boolean supported = false;
                     try {
                         supported = (getPackageManager().getPackageInfo("eu.chainfire.supersu", 0).versionCode >= 185);
+                    } catch (PackageManager.NameNotFoundException e) {
+                    }
+                    if (!supported) {
+                        removeTile = true;
+                    }
+                } else if (id == R.id.screen_off_gesture_settings) {
+                    boolean supported = false;
+                    try {
+                        supported = (getPackageManager().getPackageInfo("com.slim.device", 0).versionCode >= 1);
                     } catch (PackageManager.NameNotFoundException e) {
                     }
                     if (!supported) {

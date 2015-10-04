@@ -111,7 +111,9 @@ final class CanBeOnSdCardChecker {
                     canBe = true;
                 } else if (info.installLocation
                         == PackageInfo.INSTALL_LOCATION_UNSPECIFIED) {
-                    if (mInstallLocation == PackageHelper.APP_INSTALL_EXTERNAL) {
+                    if (mInstallLocation == PackageHelper.APP_INSTALL_EXTERNAL ||
+                            mInstallLocation == PackageHelper.APP_INSTALL_INTERNAL ||
+                            mInstallLocation == PackageHelper.APP_INSTALL_AUTO) {
                         // For apps with no preference and the default value set
                         // to install on sdcard.
                         canBe = true;
@@ -449,6 +451,12 @@ public class ManageApplications extends Fragment implements
                     mOwner.getActivity(), android.R.anim.fade_in));
             mRunningProcessesView.setVisibility(View.VISIBLE);
             mLoadingContainer.setVisibility(View.GONE);
+        }
+
+        private void releaseTab() {
+            if (mApplications != null) {
+                mApplications.releaseApplicationsAdapter();
+            }
         }
     }
     private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
@@ -843,6 +851,20 @@ public class ManageApplications extends Fragment implements
         public void onMovedToScrapHeap(View view) {
             mActive.remove(view);
         }
+
+        private void releaseApplicationsAdapter() {
+            if (mBaseEntries != null) {
+                mBaseEntries.clear();
+            }
+
+            if (mEntries != null) {
+                mEntries.clear();
+            }
+
+            if (mSession != null) {
+                mSession.release();
+            }
+        }
     }
 
     @Override
@@ -1127,6 +1149,15 @@ public class ManageApplications extends Fragment implements
     @Override
     public void onDestroy() {
         getActivity().unbindService(mContainerConnection);
+
+        if (mApplicationsState != null) {
+            mApplicationsState.releaseApplicationState();
+        }
+
+        for (int i = 0; i < mTabs.size(); i++) {
+            mTabs.get(i).releaseTab();
+        }
+
         super.onDestroy();
     }
 

@@ -103,6 +103,17 @@
                 android:targetClass="com.cyanogenmod.settings.device.TouchscreenGestureSettings" />
         </dashboard-tile>
 
+        <!-- Slim Gestures -->
+        <dashboard-tile
+            android:id="@+id/screen_off_gesture_settings"
+            android:title="@string/gesture_settings_title"
+            android:icon="@drawable/ic_settings_gestures">
+                <intent
+                    android:action="com.slim.action.LAUNCH_SCREEN_OFF_GESTURE_SETTINGS"
+                    android:targetPackage="com.slim.device"
+                    android:targetClass="com.slim.device.settings.ScreenOffGestureSettings" />
+        </dashboard-tile>
+
         <!-- Themes -->
         <!-- NOTE: Intent.parseIntent looks for "categories" tag and not "category" -->
         <dashboard-tile
@@ -280,17 +291,6 @@
                 android:action="android.intent.action.MAIN"
                 android:targetPackage="eu.chainfire.supersu"
                 android:targetClass="eu.chainfire.supersu.MainActivity" />
-        </dashboard-tile>
-
-        <!-- Kernel Adiutor -->
-        <dashboard-tile
-            android:id="@+id/kerneladiutor_settings"
-            android:icon="@drawable/ic_kerneladiutor"
-            android:title="@string/kerneladiutor_title">
-            <intent
-                android:action="android.intent.action.MAIN"
-                android:targetPackage="com.grarak.kerneladiutor"
-                android:targetClass="com.grarak.kerneladiutor.MainActivity" />
         </dashboard-tile>
 
         <!-- About Device -->

@@ -302,7 +302,7 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
             throw new RuntimeException(e);
         }
 
-        mShowWifi = mPrefs.getBoolean(PREF_SHOW_WIFI, false);
+        mShowWifi = mPrefs.getBoolean(PREF_SHOW_WIFI, true);
         mShowEthernet = mPrefs.getBoolean(PREF_SHOW_ETHERNET, false);
 
         // override preferences when no mobile radio
@@ -503,6 +503,11 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
         mMenuRestrictBackground = menu.findItem(R.id.data_usage_menu_restrict_background);
         mMenuRestrictBackground.setVisible(
                 hasReadyMobileRadio(context) && isOwner && !appDetailMode);
+
+        if (context.getResources().getBoolean(
+                com.android.internal.R.bool.config_zero_balance_operator))
+            mMenuRestrictBackground.setEnabled(
+                    !mPolicyManager.getRestrictBackground2());
 
         final MenuItem metered = menu.findItem(R.id.data_usage_menu_metered);
         if (hasReadyMobileRadio(context) || hasWifiRadio(context)) {

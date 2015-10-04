@@ -102,7 +102,6 @@ public class Settings extends SettingsActivity {
 
     public static class TopLevelSettings extends SettingsActivity { /* empty */ }
     public static class ApnSettingsActivity extends SettingsActivity { /* empty */ }
-    public static class BlacklistSettingsActivity extends SettingsActivity { /* empty */ }
     public static class DuSettingsActivity extends SettingsActivity { /* empty */ }
     public static class HeadsUpSettingsActivity extends SettingsActivity { /* empty */ }
     public static class AppCircleBarActivity extends SettingsActivity { /* empty */ }

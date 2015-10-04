@@ -100,8 +100,7 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
     private static final String ADB_TCPIP  = "adb_over_network";
     private static final String CLEAR_ADB_KEYS = "clear_adb_keys";
     private static final String ENABLE_TERMINAL = "enable_terminal";
-
-    private static final String KEEP_SCREEN_ON = "keep_screen_on";
+    private static final String KEEP_SCREEN_ON_MODES = "keep_screen_on_modes";
     private static final String BT_HCI_SNOOP_LOG = "bt_hci_snoop_log";
     private static final String ENABLE_OEM_UNLOCK = "oem_unlock_enable";
     private static final String ALLOW_MOCK_LOCATION = "allow_mock_location";
@@ -197,9 +196,8 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
     private SwitchPreference mAdbNotify;
     //private Preference mBugreport;
     //private SwitchPreference mBugreportInPower;
-
     private SwitchPreference mAdbOverNetwork;
-    private SwitchPreference mKeepScreenOn;
+    private ListPreference mKeepScreenOn;
     private SwitchPreference mBtHciSnoopLog;
     private SwitchPreference mEnableOemUnlock;
     private SwitchPreference mAllowMockLocation;
@@ -313,7 +311,7 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
         //mBugreportInPower = findAndInitSwitchPref(BUGREPORT_IN_POWER_KEY);
 
         mAdbOverNetwork = findAndInitSwitchPref(ADB_TCPIP);
-        mKeepScreenOn = findAndInitSwitchPref(KEEP_SCREEN_ON);
+        mKeepScreenOn = addListPreference(KEEP_SCREEN_ON_MODES);
         mBtHciSnoopLog = findAndInitSwitchPref(BT_HCI_SNOOP_LOG);
         mEnableOemUnlock = findAndInitSwitchPref(ENABLE_OEM_UNLOCK);
         if (!showEnableOemUnlockPreference()) {
@@ -556,8 +554,7 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
         }
         //updateSwitchPreference(mBugreportInPower, Settings.Secure.getInt(cr,
         //        Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) != 0);
-        updateSwitchPreference(mKeepScreenOn, Settings.Global.getInt(cr,
-                Settings.Global.STAY_ON_WHILE_PLUGGED_IN, 0) != 0);
+        updateStayAwakeOptions();
         updateSwitchPreference(mBtHciSnoopLog, Settings.Secure.getInt(cr,
                 Settings.Secure.BLUETOOTH_HCI_LOG, 0) != 0);
         if (mEnableOemUnlock != null) {
@@ -633,21 +630,14 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
     }
 
     private void updateRootAccessOptions() {
-        String value = SystemProperties.get(ROOT_ACCESS_PROPERTY, "0");
+        String value = SystemProperties.get(ROOT_ACCESS_PROPERTY, "1");
         mRootAccess.setValue(value);
         mRootAccess.setSummary(getResources()
                 .getStringArray(R.array.root_access_entries)[Integer.valueOf(value)]);
     }
 
-    public static boolean isRootForAppsEnabled() {
-        int value = SystemProperties.getInt(ROOT_ACCESS_PROPERTY, 0);
-        boolean daemonState =
-                SystemProperties.get("init.svc.su_daemon", "absent").equals("running");
-        return daemonState && (value == 1 || value == 3);
-    }
-
     private void writeRootAccessOptions(Object newValue) {
-        String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, "0");
+        String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, "1");
         SystemProperties.set(ROOT_ACCESS_PROPERTY, newValue.toString());
         if (Integer.valueOf(newValue.toString()) < 2 && !oldValue.equals(newValue)
                 && "1".equals(SystemProperties.get("service.adb.root", "0"))) {
@@ -661,9 +651,9 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
     }
 
     private void resetRootAccessOptions() {
-        String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, "0");
-        SystemProperties.set(ROOT_ACCESS_PROPERTY, "0");
-        if (!oldValue.equals("0") && "1".equals(SystemProperties.get("service.adb.root", "0"))) {
+        String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, "1");
+        SystemProperties.set(ROOT_ACCESS_PROPERTY, "1");
+        if (!oldValue.equals("1") && "1".equals(SystemProperties.get("service.adb.root", "0"))) {
             SystemProperties.set("service.adb.root", "0");
             Settings.Secure.putInt(getActivity().getContentResolver(),
                     Settings.Secure.ADB_ENABLED, 0);
@@ -671,6 +661,28 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
                     Settings.Secure.ADB_ENABLED, 1);
         }
         updateRootAccessOptions();
+    }
+
+    private void resetAdbNotifyOptions() {
+        Settings.Secure.putInt(getActivity().getContentResolver(),
+                Settings.Secure.ADB_NOTIFY, 1);
+    }
+
+    private void updateStayAwakeOptions() {
+        int index = Settings.Global.getInt(getActivity().getContentResolver(),
+                Settings.Global.STAY_ON_WHILE_PLUGGED_IN, 0);
+        final String[] values = getResources().getStringArray(R.array.keep_screen_on_values);
+        final String[] summaries = getResources().getStringArray(R.array.keep_screen_on_titles);
+        // The old value contained 0 (disable) or 3 (BATTERY_PLUGGED_AC|BATTERY_PLUGGED_USB)
+        // Currently only have 3 values (0: Not enabled; 1: debugging over usb; >2: charging)
+        // NOTE: If we have newer values, then we need to migrate
+        // this property
+        if (index >= values.length) {
+            index = values.length - 1;
+        }
+        mKeepScreenOn.setValue(values[index]);
+        mKeepScreenOn.setSummary(summaries[index]);
+        mKeepScreenOn.setOnPreferenceChangeListener(this);
     }
 
     private void updateHdcpValues() {
@@ -976,6 +988,13 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
         }
         mShowNonRectClip.setValueIndex(0);
         mShowNonRectClip.setSummary(mShowNonRectClip.getEntries()[0]);
+    }
+
+    private void writeStayAwakeOptions(Object newValue) {
+        int val = Integer.parseInt((String) newValue);
+        Settings.Global.putInt(getActivity().getContentResolver(),
+                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN, val);
+        updateStayAwakeOptions();
     }
 
     private void writeShowNonRectClipOptions(Object newValue) {
@@ -1528,11 +1547,6 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
         //    Settings.Secure.putInt(getActivity().getContentResolver(),
         //            Settings.Secure.BUGREPORT_IN_POWER_MENU,
         //            mBugreportInPower.isChecked() ? 1 : 0);
-        } else if (preference == mKeepScreenOn) {
-            Settings.Global.putInt(getActivity().getContentResolver(),
-                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
-                    mKeepScreenOn.isChecked() ?
-                            (BatteryManager.BATTERY_PLUGGED_AC | BatteryManager.BATTERY_PLUGGED_USB) : 0);
         } else if (preference == mBtHciSnoopLog) {
             writeBtHciSnoopLogOptions();
         } else if (preference == mEnableOemUnlock) {
@@ -1664,13 +1678,15 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
                 mRootDialog = new AlertDialog.Builder(getActivity())
                         .setMessage(getResources().getString(R.string.root_access_warning_message))
                         .setTitle(R.string.root_access_warning_title)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, this)
                         .setNegativeButton(android.R.string.no, this).show();
                 mRootDialog.setOnDismissListener(this);
             } else {
                 writeRootAccessOptions(newValue);
             }
+            return true;
+        } else if (preference == mKeepScreenOn) {
+            writeStayAwakeOptions(newValue);
             return true;
         }
         return false;

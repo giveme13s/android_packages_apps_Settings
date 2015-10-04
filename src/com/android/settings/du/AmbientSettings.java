@@ -44,6 +44,7 @@ import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.dirtyunicorns.dutweaks.preference.SystemSettingSwitchPreference;
 import com.android.settings.du.sensor.ShakeSensorManager;
+import com.android.settings.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
     private static final String TAG = "AmbientSettings";
 
     private static final String KEY_DOZE = "doze";
+    private static final String KEY_DOZE_NOTIFICATION_INVERT = "doze_notification_invert_enabled";
     private static final String KEY_DOZE_OVERWRITE_VALUE = "doze_overwrite_value";
     private static final String KEY_DOZE_PULSE_IN = "doze_pulse_in";
     private static final String KEY_DOZE_PULSE_VISIBLE = "doze_pulse_visible";
@@ -63,10 +65,13 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
     private static final String KEY_DOZE_SHAKE_CATEGORY = "doze_shake_category";
     private static final String KEY_DOZE_SHAKE_THRESHOLD = "doze_shake_threshold";
     private static final String KEY_DOZE_TIME_MODE = "doze_time_mode";
+    private static final String KEY_SAMSUNG_AD_SETTINGS = "samsung_ad_settings";
+    private static final String KEY_SAMSUNG_AD = "com.cyanogenmod.settings.ad";
 
     private int mAccValue;
     private int mOldAccValue;
     private SwitchPreference mDozePreference;
+    private SwitchPreference mDozeNotifInvert;
     private ListPreference mDozeListMode;
     private ListPreference mDozePulseIn;
     private ListPreference mDozePulseVisible;
@@ -76,6 +81,7 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
     private ShakeSensorManager mShakeSensorManager;
     private AlertDialog mDialog;
     private Button mShakeFoundButton;
+    private PreferenceScreen mSamsungAdSettings;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,9 +89,13 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
         final Activity activity = getActivity();
 
         addPreferencesFromResource(R.xml.ambient_settings);
+        PreferenceScreen prefSet = getPreferenceScreen();
 
         mDozePreference = (SwitchPreference) findPreference(KEY_DOZE);
         mDozePreference.setOnPreferenceChangeListener(this);
+
+        mDozeNotifInvert = (SwitchPreference) findPreference(KEY_DOZE_NOTIFICATION_INVERT);
+        mDozeNotifInvert.setOnPreferenceChangeListener(this);
 
         mDozePulseIn = (ListPreference) findPreference(KEY_DOZE_PULSE_IN);
         mDozePulseIn.setOnPreferenceChangeListener(this);
@@ -95,6 +105,11 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
 
         mDozePulseOut = (ListPreference) findPreference(KEY_DOZE_PULSE_OUT);
         mDozePulseOut.setOnPreferenceChangeListener(this);
+
+        mSamsungAdSettings = (PreferenceScreen) findPreference(KEY_SAMSUNG_AD_SETTINGS);
+        if (!Utils.isPackageInstalled(getActivity(), KEY_SAMSUNG_AD)) {
+            prefSet.removePreference(mSamsungAdSettings);
+        }
 
         if (isAccelerometerAvailable(activity)) {
             mDozeListMode = (ListPreference) findPreference(KEY_DOZE_LIST_MODE);
@@ -383,6 +398,10 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
             int value = Settings.Secure.getInt(getContentResolver(), Settings.Secure.DOZE_ENABLED, 1);
             mDozePreference.setChecked(value != 0);
         }
+        if (mDozeNotifInvert != null) {
+            int value = Settings.Secure.getInt(getContentResolver(), Settings.Secure.DOZE_NOTIFICATION_INVERT_ENABLED, 1);
+            mDozeNotifInvert.setChecked(value != 0);
+        }
     }
 
     @Override
@@ -399,6 +418,10 @@ public class AmbientSettings extends SettingsPreferenceFragment implements
         if (preference == mDozePreference) {
             boolean value = (Boolean) objValue;
             Settings.Secure.putInt(getContentResolver(), Settings.Secure.DOZE_ENABLED, value ? 1 : 0);
+        }
+        if (preference == mDozeNotifInvert) {
+            boolean value = (Boolean) objValue;
+            Settings.Secure.putInt(getContentResolver(), Settings.Secure.DOZE_NOTIFICATION_INVERT_ENABLED, value ? 1 : 0);
         }
         if (preference == mDozePulseIn) {
             int dozePulseIn = Integer.parseInt((String)objValue);

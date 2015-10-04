@@ -34,12 +34,6 @@
             android:title="@string/app_ops_settings"
             android:persistent="false" />
 
-        <PreferenceScreen
-            android:key="blacklist"
-            android:title="@string/blacklist_title"
-            android:summary="@string/blacklist_summary"
-            android:fragment="com.android.settings.blacklist.BlacklistSettings" />
-		
     </PreferenceCategory>
 
     <PreferenceCategory android:key="sim_lock"

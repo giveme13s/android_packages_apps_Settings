@@ -169,6 +169,12 @@
                 android:resource="@id/wifi_settings" />
         </activity>
 
+        <activity android:name=".SubSettings$WifiSubSettings"
+                android:taskAffinity="com.android.settings"
+                android:configChanges="orientation|keyboardHidden|screenSize"
+                android:parentActivityName="Settings">
+        </activity>
+
         <!-- Keep compatibility with old shortcuts. -->
         <activity-alias android:name=".wifi.WifiSettings"
                 android:taskAffinity="com.android.settings"
@@ -1278,6 +1284,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Runs in the phone process since it needs access to the Phone object -->
+        <activity
+            android:name=".deviceinfo.MSimStatus"
+            android:label="@string/device_status_activity_title"
+            android:process="com.android.phone"
+            android:theme="@style/Theme.SubSettingsDialogWhenLarge" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE_LAUNCH" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="Settings$StorageSettingsActivity"
                 android:label="@string/storage_settings_title"
                 android:taskAffinity="com.android.settings"
@@ -1858,32 +1877,6 @@
                 android:resource="@id/display_settings" />
         </activity>
 
-        <activity android:name="Settings$BlacklistSettingsActivity"
-                android:uiOptions="splitActionBarWhenNarrow"
-                android:label="@string/blacklist_title"
-                android:excludeFromRecents="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                android:value="com.android.settings.blacklist.BlacklistSettings" />
-            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/security_settings" />
-        </activity>
-
-        <activity-alias android:name=".blacklist.BlacklistSettings"
-                android:taskAffinity="com.android.settings"
-                android:label="@string/blacklist_title"
-                android:targetActivity="Settings$BlacklistSettingsActivity"
-                android:configChanges="orientation|keyboardHidden|screenSize"
-                android:exported="true">
-            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                       android:value="com.android.settings.blacklist.BlacklistSettings" />
-            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                       android:resource="@id/security_settings" />
-        </activity-alias>
-
         <!-- Navigation options -->
         <activity android:name="Settings$NavbarSettingsActivity"
                 android:uiOptions="splitActionBarWhenNarrow"
@@ -2337,6 +2330,8 @@
         </receiver>
 
         <service android:name="com.dirtyunicorns.dutweaks.fragments.CheckHosts" />
+
+        <activity android:name="com.dirtyunicorns.dutweaks.fragments.SystemappRemover" />
 
         <activity android:name="com.dirtyunicorns.dutweaks.fragments.GestureAnywhereBuilderActivity" />
         <activity android:name="com.dirtyunicorns.dutweaks.fragments.GestureAnywhereCreateGestureActivity" />

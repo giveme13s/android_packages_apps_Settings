@@ -92,6 +92,7 @@ public class Memory extends SettingsPreferenceFragment
     private IMountService mMountService;
     private StorageManager mStorageManager;
     private UsbManager mUsbManager;
+    private boolean mRemoveableStorage;
 
     private ArrayList<StorageVolumePreferenceCategory> mCategories = Lists.newArrayList();
 
@@ -136,6 +137,9 @@ public class Memory extends SettingsPreferenceFragment
                 }
 
                 addCategory(StorageVolumePreferenceCategory.buildForPhysical(context, volume));
+            }
+            if (volume.isRemovable()) {
+                mRemoveableStorage = true;
             }
         }
 
